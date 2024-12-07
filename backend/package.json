@@ -3,13 +3,16 @@
   "version": "0.0.1",
   "description": "This is the backend for my website",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "node server.js"
   },
   "author": "Harkirat",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
+    "mongoose": "^8.8.4",
     "mqtt": "^5.10.3"
   }
 }
