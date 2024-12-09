@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const studentSchema = new mongoose.Schema({
+const studentSchema = new Schema({
     rollno: {
         type: Number,
         required: true,
@@ -11,7 +11,16 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true,
         index:true
+    },
+    dob: {
+        type: Date,
+        required : true
+    },
+    class: {
+        type: Schema.Types.ObjectId,
+        ref: "Class",
+        required: true
     }
-})
+});
 
 export const Student = mongoose.model("Student", studentSchema);

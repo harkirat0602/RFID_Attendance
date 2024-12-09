@@ -2,7 +2,7 @@ import mqtt from 'mqtt';
 import express from 'express';
 import db_connect from './db/db.js';
 import dotenv from "dotenv";
-import { Student } from './models/students.js';
+import { Student } from './models/students.model.js';
 
 
 dotenv.config("./env");
