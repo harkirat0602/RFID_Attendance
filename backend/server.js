@@ -41,14 +41,3 @@ db_connect()
 })
 
 
-
-app.get("/:student",async (req,res)=>{
-    const student = req.params.student;
-    const studentobj = await Student.create({
-        rollno: 4,
-        name: student
-    });
-    console.log(studentobj._id);
-
-    console.log("[-] Student Created!!")
-})
