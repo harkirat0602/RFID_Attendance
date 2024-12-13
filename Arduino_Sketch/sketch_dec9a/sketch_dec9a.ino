@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <PubSubClient.h>
 #include <MFRC522.h>
+#include <ArduinoJson.h>
 
 
 #define RST_PIN         9 
@@ -27,7 +28,7 @@ const char* MQTT_User = "";
 const char* MQTT_Pass = "";
 
 
-char* MODE = "IDLE";
+char* MODE = "idle";
 char* IDLE_TEXT = "IDLE Mode";
 char* IDLE_TEXT2 = "Scan Your Card";
 
@@ -50,7 +51,7 @@ void setup() {
 
   WiFi.begin(WiFi_SSID,WiFi_Pass);
   while(WiFi.status() != WL_CONNECTED){
-    lcd_print(".");
+    lcd.print(".");
     delay(500);
   }
   lcd.clear();
@@ -69,6 +70,7 @@ void setup() {
       lcd.setCursor(0,1);
       lcd.print("Connected!!");
       client.subscribe("attendance/command");
+      client.subscribe("attendance/data");
     }else{
       lcd.print(".");
     }
@@ -82,6 +84,46 @@ void setup() {
   pinMode(BUZZER_PIN,OUTPUT);
 
 }
+
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  char message[length+1];
+  strncpy(message,(char*)payload,length);
+  message[length] = '\0';
+
+  if(strstr(message,"\"sender\":\"arduino\"") != 0){
+    return;
+  }
+
+
+  if(strstr(topic,"attendance/command") != 0){
+    strncpy(MODE,message,length);
+    return;
+  }else if(strstr(topic,"attendance/data") != 0){
+    if(strcmp(MODE,"write") =! 0){
+      return;
+    }
+
+    DynamicJsonDocument doc(length+1);
+
+    DeserializationError error = deserializeJson(doc,message);
+
+    if(error){
+      lcd.setCursor(0,0);
+      lcd.print("JSON Parse Error");
+      MODE = "idle";
+      return;
+    }
+
+    //write the logic to write
+
+
+
+  }
+
+
+}
+
 
 void loop() {
   // put your main code here, to run repeatedly:
