@@ -83,8 +83,7 @@ void setup() {
   while(!client.connected()){
     if(client.connect("ArduinoClient")){
       printlcd("Connected!!",1,0);
-      client.subscribe("attendance/command");
-      client.subscribe("attendance/data");
+      client.subscribe("to_arduino");
     }else{
       lcd.print(".");
     }
@@ -107,30 +106,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
   strncpy(message,(char*)payload,length);
   message[length] = '\0';
 
-  if(strstr(message,"\"sender\":\"arduino\"") != 0){
+  if(strstr(topic,"to_arduino" == 0)) return;
+
+
+  DynamicJsonDocument doc(length+1);
+
+  DeserializationError error = deserializeJson(doc,message);
+
+  if(error){
+    showError("JSON Parse Error");
     return;
   }
 
+  //write the logic to write
 
-  if(strstr(topic,"attendance/command") != 0){
-    strncpy(MODE,message,length);
-    return;
-  }else if(strstr(topic,"attendance/data") != 0){
-    if(strcmp(MODE,"write") =! 0){
-      return;
-    }
-
-    DynamicJsonDocument doc(length+1);
-
-    DeserializationError error = deserializeJson(doc,message);
-
-    if(error){
-      showError("JSON Parse Error");
-      return;
-    }
-
-    //write the logic to write
-
+  if(strcmp(doc['operation'],"write") ==0 ){  
     printlcd("Ready to write Card");
 
     MFRC522::MIFARE_Key newkey;
@@ -143,6 +133,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(!mfrc522.PICC_ReadCardSerial()){
       showError("Card Read Error");
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -154,6 +145,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Authentication Error")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -161,6 +153,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Error while writing")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -170,6 +163,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Authentication Error")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -177,6 +171,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Error while writing")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -187,6 +182,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Authentication Error")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
@@ -194,11 +190,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(status!= MFRC::STATUS_OK){
       showError("Error while writing")
+      client.publish("from_arduino_response","{\"success\":false}");
       return;
     }
 
+
+    // change the access bit and set the Card key
+
     printlcd("Card written successfully!!  ");
 
+    client.publish("from_arduino_response","{\"success\":true}");
+
+    delay(3000);
+    lcd.clear();
+
+  }
+  else if( strcmp(doc["operation"],"read" ) ){
+    IDLE_TEXT = doc["class"] + " " + doc["subject"];
+    IDLE_TEXT2 = doc["teacher"];
   }
 
 
@@ -207,6 +216,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  printlcd(IDLE_TEXT);
+  printlcd(IDLE_TEXT2,1,0);
 
   client.loop();
 
@@ -243,8 +255,29 @@ void loop() {
       return;
     }
     strcpy(doc["firstname"],buffer);
+    buffer=0;
+
+
+    block++;
+
+
+    status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+
+    if(status!= MFRC::STATUS_OK){
+      showError("Authentication Error")
+      return;
+    }
+
+    status = mfrc522.MIFARE_Read(block, buffer, 16);
+
+    if(status!= MFRC::STATUS_OK){
+      showError("Error while writing")
+      return;
+    }
+    strcpy(doc["lastname"],buffer);
 
     buffer=0;
+
 
 
   }
