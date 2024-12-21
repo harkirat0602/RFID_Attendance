@@ -106,7 +106,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   strncpy(message,(char*)payload,length);
   message[length] = '\0';
 
-  if(strstr(topic,"to_arduino" == 0)) return;
+  if(strstr(topic,"to_arduino") == 0) return;
 
 
   DynamicJsonDocument doc(length+1);
@@ -203,15 +203,53 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     delay(3000);
     lcd.clear();
+    MODE="idle";
+
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
 
   }
   else if( strcmp(doc["operation"],"read" ) ){
+
+    MODE="read";
     IDLE_TEXT = doc["class"] + " " + doc["subject"];
     IDLE_TEXT2 = doc["teacher"];
+    client.publish("from_arduino_response","{\"success\":true}");
+
+  } else if( strcmp(doc["operation"],"idle") ){
+
+    MODE="idle";
+    IDLE_TEXT = "IDLE Mode";
+    IDLE_TEXT2 = "Scan Your Card";
+    client.publish("from_arduino_response","{\"success\":true}");
+
   }
 
 
 }
+
+
+MFRC522::StatusCode readblock(byte block,char *json){
+  MFRC522::StatusCode status;
+  byte buffer[18];
+
+  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+
+  if(status!= MFRC::STATUS_OK){
+    showError("Authentication Error")
+    return status;
+  }
+
+  status = mfrc522.MIFARE_Read(block, buffer, 16);
+
+  if(status!= MFRC::STATUS_OK){
+    showError("Error while writing")
+    return status;
+  }
+  strcpy(json,buffer);
+  return status;
+}
+
 
 
 void loop() {
@@ -233,54 +271,70 @@ void loop() {
 
 
   MFRC522::StatusCode status;
-  byte block;
-  block=1;
-  byte buffer[18];
 
 
   if(strcmp(MODE,"read")==0){ 
     DynamicJsonDocument doc(200);
+    String jsonstring;
 
-    status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+    
 
-    if(status!= MFRC::STATUS_OK){
-      showError("Authentication Error")
+    status= readblock(1,doc["firstname"]);
+    if(status != MFRC::STATUS_OK){
       return;
     }
 
-    status = mfrc522.MIFARE_Read(block, buffer, 16);
-
-    if(status!= MFRC::STATUS_OK){
-      showError("Error while writing")
+    status= readblock(2,doc["lastname"]);
+    if(status != MFRC::STATUS_OK){
       return;
     }
-    strcpy(doc["firstname"],buffer);
-    buffer=0;
-
-
-    block++;
-
-
-    status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
-
-    if(status!= MFRC::STATUS_OK){
-      showError("Authentication Error")
+    
+    status= readblock(3,doc["rollno"]);
+    if(status != MFRC::STATUS_OK){
       return;
     }
 
-    status = mfrc522.MIFARE_Read(block, buffer, 16);
 
-    if(status!= MFRC::STATUS_OK){
-      showError("Error while writing")
+    serializeJson(doc, jsonstring);
+    client.publish("from_arduino_data",jsonstring.c_str());
+
+
+    // Write the code to wait for MQTT Response
+
+
+  }else if( strcmp(MODE,"idle")==0 ){
+    String data;
+    String data2;
+
+    // For Roll No
+    status= readblock(3,data);
+    if(status != MFRC::STATUS_OK){
       return;
     }
-    strcpy(doc["lastname"],buffer);
-
-    buffer=0;
+    printlcd(data);
 
 
+    //For First name
+    status= readblock(1,data);
+    if(status != MFRC::STATUS_OK){
+      return;
+    }
+    //For Last name
+    status= readblock(2,data2);
+    if(status != MFRC::STATUS_OK){
+      return;
+    }
+
+
+    printlcd(data+" "+data2,1,0);
+    
+    delay(5000);
 
   }
+
+
+  mfrc522.PICC_HaltA();
+  mfrc522.PCD_StopCrypto1();
 
 
 }
