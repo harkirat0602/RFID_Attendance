@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const classSchema = new mongoose.Schema({
     class_name: {
@@ -7,7 +7,13 @@ const classSchema = new mongoose.Schema({
         unique: true,
         index: true
     },
-    year: Number
+    year: Number,
+    subjects: [
+        {
+            type: Schema.Types.ObjectId,
+            ref:'Subject'
+        }
+    ]
 });
 
 export const Class = mongoose.model("Class",classSchema);
