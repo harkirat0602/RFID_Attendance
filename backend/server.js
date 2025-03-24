@@ -4,7 +4,8 @@ import db_connect from './db/db.js';
 import dotenv from "dotenv";
 import { Attendance } from './models/attendance.model.js';
 import { Student } from './models/students.model.js';
-import { Subject } from './models/subject.model.js';
+import { getAttendanceState } from './utils/attendanceState.js';
+
 
 
 dotenv.config("./env");
@@ -51,15 +52,16 @@ mqttClient.on("message",async (topic,message)=>{
         console.log(`Attendance Recieved of ${data["firstname"]} ${data["lastname"]} having roll number ${data["rollno"]}`)
 
         const student = await Student.findOne({ rollno : data["rollno"]})
+        const subject = getAttendanceState().subject._id;
 
         let date = new Date(); date.setTime(0);
-        const markflag = await Attendance.exists({student: student._id, date: { $gt: date }, subject:subject_name._id})
+        const markflag = await Attendance.exists({student: student._id, date: { $gt: date }, subject:subject})
         if (markflag){
             mqttClient.publish("to_arduino_response",'{success:false, message:"attendance already marked"}')
             return
         }
 
-        const attendance = await Attendance.create({student: student._id, subject: subject_name._id, date: Date.now()})
+        const attendance = await Attendance.create({student: student._id, subject, date: Date.now()})
         
         await attendance.save().then(savedattend=>{
             if(savedattend==attendance){mqttClient.publish("to_arduino_response",'{success:true, message:"attendance marked"}')}
@@ -128,10 +130,7 @@ app.post("/write-data",(req,res)=>{
 
 })
 
-app.post("/start-attendance", async (req,res) => {
-    const { subject } = req.body;
-    subject_name = await Subject.findOne({name:subject})
-    // console.log("Attendanace Started for ",subject);
-    console.log("Attendanace Started for ",subject_name.name);
-    return res.status(200).json({success:true})
-})
+
+import attendanceRouter from "./routes/attendance.routes.js"
+
+app.use("/attendance",attendanceRouter)
