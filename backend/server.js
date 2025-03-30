@@ -132,5 +132,7 @@ app.post("/write-data",(req,res)=>{
 
 
 import attendanceRouter from "./routes/attendance.routes.js"
+import studentRouter from "./routes/student.routes.js"
 
 app.use("/attendance",attendanceRouter)
+app.use("/student",studentRouter)

@@ -7,7 +7,12 @@ const studentSchema = new Schema({
         unique: true,
         index: true
     },
-    name: {
+    firstname: {
+        type: String,
+        required: true,
+        index:true
+    },
+    lastname: {
         type: String,
         required: true,
         index:true
