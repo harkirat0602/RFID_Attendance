@@ -119,7 +119,7 @@ app.post("/write-data",(req,res)=>{
             })
         }else{
             return res
-            .status(500)
+            .status(600)
             .json({
                 message: "sent",
                 response_recieved: "unknown"

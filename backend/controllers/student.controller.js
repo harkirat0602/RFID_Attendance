@@ -6,7 +6,6 @@ import { Student } from "../models/students.model.js";
 const registerstudent = async (req,res) => {
     const { rollno, firstname, lastname, dob, class_name } = req.body;
 
-    console.log(req.body);
 
     if (
         [rollno, firstname, lastname, dob, class_name ].some((field)=> !field || field?.trim() ==="")
@@ -57,6 +56,34 @@ const registerstudent = async (req,res) => {
 }
 
 
+const deletestudent = async (req,res) => {
+    const { rollno } = req.params;
+
+    const student = await Student.findOne({rollno});
+    if (student==null){
+        return res
+        .status(400)
+        .json({success:false, message: "No Student found with the rollno"})
+    }
+
+    const result = await Student.deleteOne({rollno});
+    
+
+    if (result.acknowledged){
+        return res
+        .status(200)
+        .json({success:true, message: "Student Object deleted successfully"})
+    }else{
+        return res
+        .status(500)
+        .json({success:false, message: "Error while deleting the Object"})
+    }
+
+}
+
+
+
 export{
-    registerstudent
+    registerstudent,
+    deletestudent
 }
