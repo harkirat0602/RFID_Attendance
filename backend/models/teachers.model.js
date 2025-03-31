@@ -38,12 +38,12 @@ teacherSchema.pre("save", async function(next){
 })
 
 
-teacherSchema.isPasswordCorrect = async function(password){
+teacherSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password);
 }
 
 
-teacherSchema.generateAccessToken = async function(){
+teacherSchema.methods.generateAccessToken = async function(){
     return await jwt.sign({
         _id: this._id,
         username: this.username
@@ -56,7 +56,7 @@ teacherSchema.generateAccessToken = async function(){
 
 
 
-teacherSchema.generateRefreshToken = async function(){
+teacherSchema.methods.generateRefreshToken = async function(){
     return await jwt.sign({
         _id: this._id,
     },
