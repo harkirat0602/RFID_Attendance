@@ -6,12 +6,19 @@ import { getAttendanceState, startAttendance, stopAttendance } from "../utils/at
 
 const startAttendanceController = async (req,res) => {
     const { subjectname } = req.body;
-    const subject = await Subject.findOne({name:subjectname})
+    const subject = await Subject.findOne({name:subjectname.toLowerCase()})
     if(!subject){
         return res
         .status(402)
         .json({success:false, message: "No Subject Found"})
     }
+
+    if(!subject.teacher._id.equals(req.teacher._id)){
+        return res
+        .status(420)
+        .json({success:false, message: "This is not your subject"})
+    }
+
     startAttendance(subject)
 
     console.log("Attendanace Started for ",subject.name);
