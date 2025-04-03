@@ -129,7 +129,39 @@ const loginteacher = async (req,res)=>{
 
 
 
+const logoutteacher = async(req, res) =>{
+
+    await Teacher.findByIdAndUpdate(
+        req.teacher._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new : true
+        }
+    )
+
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json({success:true, message:"Teacher Logged out"})
+
+}
+
+
+
+
 export {
     registerteacher,
-    loginteacher
+    loginteacher,
+    logoutteacher
 }
