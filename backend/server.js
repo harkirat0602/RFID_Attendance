@@ -137,7 +137,9 @@ import attendanceRouter from "./routes/attendance.routes.js"
 import studentRouter from "./routes/student.routes.js"
 import teacherRouter from "./routes/teacher.routes.js"
 import cookieParser from 'cookie-parser';
+import subjectRouter from "./routes/subject.routes.js"
 
 app.use("/attendance",attendanceRouter)
 app.use("/student",studentRouter)
 app.use("/teacher",teacherRouter)
+app.use("/subject",subjectRouter)
