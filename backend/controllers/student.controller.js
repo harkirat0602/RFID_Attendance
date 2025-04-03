@@ -8,7 +8,7 @@ const registerstudent = async (req,res) => {
 
 
     if (
-        [rollno, firstname, lastname, dob, class_name ].some((field)=> !field || field?.trim() ==="")
+        [rollno, firstname, lastname, class_name ].some((field)=> !field || field?.trim() ==="")
     ) {
         return res
         .status(400)
@@ -35,7 +35,7 @@ const registerstudent = async (req,res) => {
         firstname,
         lastname,
         rollno,
-        dob: new Date(dob),
+        dob: new Date(dob || "2004-01-01"),
         class: classobj._id
     });
 

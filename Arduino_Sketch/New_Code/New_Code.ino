@@ -20,8 +20,6 @@ MFRC522::MIFARE_Key key;
 
 
 void printlcd(const char* message,byte row=0,byte clear=1){
-  static char lasttext[] ="";
-  if(strcmp(lasttext,message)==0) return;
   if(clear){
     lcd.clear();
   }
@@ -146,11 +144,9 @@ void loop() {
     Serial.println(mfrc522.GetStatusCodeName(status));
     delay(5000);
     printlcd("IDLE");
-    SPI.endTransaction();
     return;
   }
 
-  SPI.endTransaction();
 
   buffer[7] = '\0';
 

@@ -19,6 +19,7 @@ let subject_name;
 
 app.use(express.json({limit: "32kb"}))
 app.use(express.urlencoded({extended:true, limit:"32kb"}))
+app.use(cookieParser())
 
 
 const mqttURL = "mqtt://localhost";
@@ -49,9 +50,9 @@ mqttClient.on("connect",()=>{
 mqttClient.on("message",async (topic,message)=>{
     if(topic==="from_arduino_data"){
         const data= JSON.parse(message)
-        console.log(`Attendance Recieved of ${data["firstname"]} ${data["lastname"]} having roll number ${data["rollno"]}`)
+        console.log(`Attendance Recieved of roll number ${message}`)
 
-        const student = await Student.findOne({ rollno : data["rollno"]})
+        const student = await Student.findOne({ rollno : message})
         const subject = getAttendanceState().subject._id;
 
         let date = new Date(); date.setTime(0);
@@ -64,8 +65,8 @@ mqttClient.on("message",async (topic,message)=>{
         const attendance = await Attendance.create({student: student._id, subject, date: Date.now()})
         
         await attendance.save().then(savedattend=>{
-            if(savedattend==attendance){mqttClient.publish("to_arduino_response",'{success:true, message:"attendance marked"}')}
-            else{mqttClient.publish("to_arduino_response",'{success:false, message:"attendance not marked"}')}
+            if(savedattend==attendance){mqttClient.publish("to_arduino_response",'SUCCESS')}
+            else{mqttClient.publish("to_arduino_response",'FAIL')}
         })
 
     }else if(topic==="from_arduino_response"){
@@ -102,10 +103,11 @@ app.post("/write-data",(req,res)=>{
     const data = {
         firstname,
         lastname,
-        rollno
+        rollno,
+        operation: "write"
     }
     console.log(req.body)
-    mqttClient.publish("to_arduino_data",JSON.stringify(data))
+    mqttClient.publish("to_arduino_command",JSON.stringify(data))
 
     setTimeout(()=>{
 
@@ -134,6 +136,7 @@ app.post("/write-data",(req,res)=>{
 import attendanceRouter from "./routes/attendance.routes.js"
 import studentRouter from "./routes/student.routes.js"
 import teacherRouter from "./routes/teacher.routes.js"
+import cookieParser from 'cookie-parser';
 
 app.use("/attendance",attendanceRouter)
 app.use("/student",studentRouter)
