@@ -78,7 +78,7 @@ const loginteacher = async (req,res)=>{
     // set cookie option
     // return the response with cookies
 
-
+    // console.log("Got login request");
     const {username, password} = req.body;
 
     if (!username){
@@ -157,11 +157,18 @@ const logoutteacher = async(req, res) =>{
 
 }
 
+const getlogininfo = async (req,res)=>{
+    return res
+        .status(200)
+        .json({success:true, data:req.teacher})
+}
+
 
 
 
 export {
     registerteacher,
     loginteacher,
-    logoutteacher
+    logoutteacher,
+    getlogininfo
 }
