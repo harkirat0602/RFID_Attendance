@@ -53,21 +53,35 @@ mqttClient.on("message",async (topic,message)=>{
         console.log(`Attendance Recieved of roll number ${message}`)
 
         const student = await Student.findOne({ rollno : message})
-        const subject = getAttendanceState().subject._id;
+        const attendance = getAttendanceState();
+        const classobj = attendance.subject.class;
 
-        let date = new Date(); date.setTime(0);
-        const markflag = await Attendance.exists({student: student._id, date: { $gt: date }, subject:subject})
-        if (markflag){
-            mqttClient.publish("to_arduino_response",'{success:false, message:"attendance already marked"}')
+        if(student.class._id!=classobj._id){
+            mqttClient.publish("to_arduino_response",'{success:false, message:"Wrong Class"}')
             return
         }
 
-        const attendance = await Attendance.create({student: student._id, subject, date: Date.now()})
         
-        await attendance.save().then(savedattend=>{
-            if(savedattend==attendance){mqttClient.publish("to_arduino_response",'SUCCESS')}
-            else{mqttClient.publish("to_arduino_response",'FAIL')}
-        })
+        const markflag = await Attendance.findOne({_id:attendance._id, students: student._id})
+
+
+        if (markflag){
+            mqttClient.publish("to_arduino_response",'ALREADY MARKED')
+            return
+        }
+
+        const markedattendance = await Attendance.findByIdAndUpdate(
+            attendance._id,
+            {   $push: { students: student._id }    },
+            {   new: true   }
+        ).exec();
+        
+        if(savedattend==attendance){
+            mqttClient.publish("to_arduino_response",'SUCCESS')
+        }else{
+            mqttClient.publish("to_arduino_response",'FAIL')
+        }
+
 
     }else if(topic==="from_arduino_response"){
         const data= JSON.parse(message)

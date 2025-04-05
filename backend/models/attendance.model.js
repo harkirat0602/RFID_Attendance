@@ -1,11 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const attendSchema = new Schema({
-    student: {
+    students: [{
         type: Schema.Types.ObjectId,
-        ref: 'Student',
-        required: true
-    },
+        ref: 'Student'
+    }],
     subject: {
         type: Schema.Types.ObjectId,
         ref: 'Subject',

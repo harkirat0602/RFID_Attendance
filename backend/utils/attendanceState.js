@@ -2,19 +2,19 @@
 
 const AttendanceState = {
     isMarking : false,
-    subject: null
+    attendance: null
 };
 
 
 export const getAttendanceState = () => AttendanceState;
 
 
-export const startAttendance = (subject) => {
+export const startAttendance = (subject, attendance) => {
     AttendanceState.isMarking = true;
-    AttendanceState.subject = subject;
+    AttendanceState.attendance = attendance
 }
 
 export const stopAttendance = ()=>{
     AttendanceState.isMarking = false;
-    AttendanceState.subject = null
+    AttendanceState.attendance = null
 }
