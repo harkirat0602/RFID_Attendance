@@ -1,6 +1,9 @@
+import mongoose from "mongoose";
+import { Class } from "../models/class.models.js";
 import { Teacher } from "../models/teachers.model.js";
 
 
+const ObjectId = mongoose.Types.ObjectId
 
 const generateTokens = async (teacherid) => {
     
@@ -18,6 +21,72 @@ const generateTokens = async (teacherid) => {
     } catch (error) {
         throw error;
     }
+
+}
+
+
+const getClassesandSubjects = async (req,res)=>{
+
+    const result = await Class.aggregate([
+        {
+          $lookup:
+            /**
+             * from: The target collection.
+             * localField: The local join field.
+             * foreignField: The target join field.
+             * as: The name for the results.
+             * pipeline: Optional pipeline to run on the foreign collection.
+             * let: Optional variables to use in the pipeline field stages.
+             */
+            {
+              from: "subjects",
+              localField: "subjects",
+              foreignField: "_id",
+              as: "subjects"
+            }
+        },
+        {
+          $project:
+            /**
+             * specifications: The fields to
+             *   include or exclude.
+             */
+            {
+              class_name: 1,
+              subjects: {
+                $filter: {
+                  input: "$subjects",
+                  as: "subject",
+                  cond: {
+                    $eq: [
+                      "$$subject.teacher",
+                      new ObjectId(req.teacher._id)
+                    ]
+                  }
+                }
+              }
+            }
+        },
+        {
+          $match:
+            /**
+             * query: The query in MQL.
+             */
+            {
+              "subjects.0": {
+                $exists: true
+              }
+            }
+        }
+      ])
+
+
+      return res
+      .status(200)
+      .json({
+        success:true,
+        data: result
+      })
 
 }
 
@@ -170,5 +239,6 @@ export {
     registerteacher,
     loginteacher,
     logoutteacher,
-    getlogininfo
+    getlogininfo,
+    getClassesandSubjects
 }
