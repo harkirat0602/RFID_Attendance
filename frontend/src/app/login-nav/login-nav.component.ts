@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Login } from '../login.interface';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login-nav',
@@ -8,8 +9,22 @@ import { Login } from '../login.interface';
   styleUrl: './login-nav.component.css'
 })
 export class LoginNavComponent {
-  login: Login= {
-    name: "Harsimran",
-    isAdmin: true
+
+  constructor(private authService: AuthService) {}
+
+ngOnInit() {
+  this.authService.user$.subscribe(user => {
+    console.log('Logged in user:', user);
+    this.login = user;
+    this.login.name = this.login.name.split(" ")[0]
+  });
+}
+
+  login: Login ={
+    name: "Login",
+    isAdmin: false,
+    username: undefined,
+    dob: undefined,
+    _id: undefined
   };
 }

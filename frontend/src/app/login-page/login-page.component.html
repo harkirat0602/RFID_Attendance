@@ -1,0 +1,40 @@
+<section>
+
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+          
+          <!-- Left Side -->
+          <div class="col-md-6 d-flex align-items-center justify-content-center bg-light">
+            <!-- Add your welcome text or image here -->
+            <div class="text-center">
+              <h2>Welcome Back!</h2>
+              <p class="lead">Attendance is the First Step Toward Achievement</p>
+              <img src="assets/attendance.svg" class="img-fluid mt-3" style="max-height: 300px;">
+            </div>
+          </div>
+      
+          <!-- Right Side - Login -->
+          <div class="col-md-6 d-flex align-items-center justify-content-center myloginform">
+            <div class="card shadow p-4 w-75">
+              <h3 class="text-center mb-4">Teacher Login</h3>
+              <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username or Email</label>
+                  <input type="text" id="username" class="form-control" formControlName="username" required>
+                </div>
+      
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" id="password" class="form-control" formControlName="password" required>
+                </div>
+      
+                <button type="submit" class="btn btn-outline-primary w-100 mt-5" [disabled]="loginForm.invalid">Login</button>
+              </form>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+      
+
+</section>
