@@ -1,5 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { AuthService } from './auth.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 export function loadUser(authService: AuthService) {
   return () => authService.fetchLoginInfo().toPromise().then(user => {
@@ -10,3 +11,4 @@ export function loadUser(authService: AuthService) {
 }
 
 export class AppModule { }
+

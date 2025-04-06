@@ -5,9 +5,13 @@ import { APP_INITIALIZER, importProvidersFrom, inject } from '@angular/core';
 import { AuthService } from './app/auth.service';
 import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideAnimations(),
+    provideToastr(),
     provideHttpClient(),
     provideRouter(routes),
     AuthService,

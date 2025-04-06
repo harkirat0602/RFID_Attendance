@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 
 @Component({
@@ -14,11 +17,17 @@ export class LoginPageComponent {
 
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private authservice: AuthService, private router: Router){
+  constructor(private fb: FormBuilder, private authservice: AuthService, private router: Router, private toastr: ToastrService){
     this.loginForm = this.fb.group({
       username: ['',Validators.required],
       password: ['',Validators.required]
     });
+
+    // this.toastr.success('Hello from Angular',"This is text",{
+    //   toastClass: 'ngx-toastr custom-toast'
+    // });
+
+
   }
 
   onLogin(){
@@ -32,13 +41,17 @@ export class LoginPageComponent {
           console.log(response)
           if(response.success){
             this.authservice.setUser(response.data);
+            localStorage.setItem('login-toast',`Welcome back! ${response.data.name}`)
             this.router.navigate(['/attendance'])
           }else{
+            localStorage.setItem('login-toast',`Error: ${response.message}`)
             this.router.navigate(['/login'])
           }
         },
         error: (err) => {
-          this.router.navigate(['/login'])
+          // this.toastr.error("Error",err.error.message,{
+          //   toastClass: "toast bootstrap bg-danger text-black"
+          // });
 
         }
       })

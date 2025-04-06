@@ -16,7 +16,9 @@ ngOnInit() {
   this.authService.user$.subscribe(user => {
     console.log('Logged in user:', user);
     this.login = user;
-    this.login.name = this.login.name.split(" ")[0]
+    if(this.login){
+      this.login.name = this.login.name.split(" ")[0]
+    }
   });
 }
 

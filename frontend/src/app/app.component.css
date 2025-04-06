@@ -1,0 +1,10 @@
+::ng-deep .custom-toast {
+    background-color: #dc3545 !important; /* Bootstrap's danger red */
+    color: #fff !important;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 0.5rem 1rem rgba(220, 53, 69, 0.5);
+  }
+  

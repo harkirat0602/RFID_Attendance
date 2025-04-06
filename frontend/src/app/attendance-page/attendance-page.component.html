@@ -1,1 +1,50 @@
-<p>attendance-page works!</p>
+<form [formGroup]="attendanceForm" class="d-flex p-2 flex-row justify-content-md-start">
+    <div class="ms-5 mt-5 fs-5">
+      <label>Select Class:</label>
+    <select formControlName="classes">
+      <option *ngFor="let cls of classes" [value]="cls._id">{{ cls.class_name }}</option>
+    </select>
+    </div>
+  
+    <div *ngIf="subjects.length > 0"  class="ms-5 mt-5 fs-5">
+      <label>Select Subject:</label>
+      <select formControlName="subject">
+        <option *ngFor="let sub of subjects" [value]="sub._id">{{ sub.name }}</option>
+      </select>
+    </div>
+  
+    <button  class="ms-5 mt-5 fs-5"
+      *ngIf="attendanceForm.get('classes')?.value && attendanceForm.get('subject')?.value"
+      (click)="startAttendance()"
+      type="button"
+    >
+      Start Attendance
+    </button>
+  </form>
+  
+
+
+  <div *ngIf="showOverlay">
+    <div class="backdrop"></div>
+    <div class="overlay-table">
+      <h2>Attendance Started
+      </h2>
+      <button (click)="closeOverlay()" class="btn btn-primary">Close Attendance</button>
+      <table class="the-table">
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Attendance Status</th>
+        </tr>
+        <tr *ngFor="let student of students; trackBy: trackByRollNo">
+          <td>{{student.rollno}}</td>
+          <td>{{student.name}}</td>
+          <td>{{student.class}}</td>
+          <td><span *ngIf="student.isPresent; else absent"><button class="btn btn-outline-success">Present</button></span>
+            <ng-template #absent><button class="btn btn-outline-danger">Absent</button></ng-template></td>
+        </tr>
+      </table>
+      
+    </div>
+  </div>
