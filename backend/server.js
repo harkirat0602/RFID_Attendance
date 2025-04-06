@@ -5,7 +5,8 @@ import dotenv from "dotenv";
 import { Attendance } from './models/attendance.model.js';
 import { Student } from './models/students.model.js';
 import { getAttendanceState } from './utils/attendanceState.js';
-
+import {Server} from "socket.io"
+import http from "http"
 
 
 dotenv.config("./env");
@@ -16,6 +17,13 @@ const PORT = 3000;
 let successFlag;
 let class_name;
 let subject_name;
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+      origin: "http://localhost:4200", // your Angular app
+      methods: ["GET", "POST"]
+    }
+  })
 
 app.use(express.json({limit: "32kb"}))
 app.use(express.urlencoded({extended:true, limit:"32kb"}))
@@ -28,6 +36,14 @@ const mqttClient = mqtt.connect(mqttURL,{
     password: "Harkirat123",
 });
 
+
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+  
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
+  });  
 
 
 mqttClient.on("connect",()=>{
@@ -53,13 +69,14 @@ mqttClient.on("message",async (topic,message)=>{
         console.log(`Attendance Recieved of roll number ${message}`)
 
         const student = await Student.findOne({ rollno : message})
-        const attendance = getAttendanceState();
-        const classobj = attendance.subject.class;
+        const attendance = getAttendanceState().attendance;
+        // console.log(attendance);
+        // const classobj = attendance.subject.class;
 
-        if(student.class._id!=classobj._id){
-            mqttClient.publish("to_arduino_response",'{success:false, message:"Wrong Class"}')
-            return
-        }
+        // if(student.class._id!=classobj._id){
+        //     mqttClient.publish("to_arduino_response",'{success:false, message:"Wrong Class"}')
+        //     return
+        // }
 
         
         const markflag = await Attendance.findOne({_id:attendance._id, students: student._id})
@@ -74,10 +91,13 @@ mqttClient.on("message",async (topic,message)=>{
             attendance._id,
             {   $push: { students: student._id }    },
             {   new: true   }
-        ).exec();
+        );
         
-        if(savedattend==attendance){
+        console.log(markedattendance._id.toString(),"===",attendance._id.toString())
+
+        if(markedattendance._id.toString()==attendance._id.toString()){
             mqttClient.publish("to_arduino_response",'SUCCESS')
+            io.emit('student-marked-present',{rollno:student.rollno});
         }else{
             mqttClient.publish("to_arduino_response",'FAIL')
         }
@@ -97,7 +117,7 @@ mqttClient.on("message",async (topic,message)=>{
 
 db_connect()
 .then(()=>{
-    app.listen(3000, ()=>{
+    server.listen(3000, ()=>{
        console.log("[-] Server Started on port 3000 successfully"); 
     })
 })
