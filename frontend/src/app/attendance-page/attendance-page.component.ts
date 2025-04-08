@@ -6,7 +6,6 @@ import { Classes } from '../class.interface';
 import { Subject } from '../subject.interface';
 import { Student } from '../student.interface';
 import { SocketService } from '../socket.service';
-import { forkJoin, of, timer } from 'rxjs';
 
 @Component({
   selector: 'app-attendance',

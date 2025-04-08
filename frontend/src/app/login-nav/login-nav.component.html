@@ -1,15 +1,19 @@
-<div class="d-flex flex-column align-items-center">
+
+
+
+<div *ngIf="login?.name; else loginbutton" class="d-flex flex-column align-items-center">
     <div class="dropdown">
         <button class="btn dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle fs-3 text-primary"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
             <li><a class="dropdown-item" href="#">Edit Profile</a></li>
-            <li><a class="dropdown-item" href="#">Admin Dashboard</a></li>
+            <li *ngIf="login.isAdmin"><a class="dropdown-item" href="/admin" >Admin Dashboard</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            <li><button class="dropdown-item" (click)="logout()">Logout</button></li>
         </ul>
     </div>
     <span class="fw-bold text-black mt-0 me-2">{{login?.name || 'Login'}}</span>
 </div>
   
+<ng-template #loginbutton><a href="\login"><button class="btn btn-outline-primary w-100">Login</button></a></ng-template>
