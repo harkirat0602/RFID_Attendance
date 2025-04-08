@@ -146,6 +146,15 @@ const getStudents = async (req,res)=>{
           rollno: 1,
           class: "$class.class_name"
         }
+    },
+    {
+      $sort:
+        /**
+         * Provide any number of field/order pairs.
+         */
+        {
+          rollno: 1
+        }
     }
   ])
 

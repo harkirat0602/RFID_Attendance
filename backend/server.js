@@ -172,8 +172,12 @@ import studentRouter from "./routes/student.routes.js"
 import teacherRouter from "./routes/teacher.routes.js"
 import cookieParser from 'cookie-parser';
 import subjectRouter from "./routes/subject.routes.js"
+import adminRoute from "./routes/admin.routes.js"
+import { verifyAdmin } from './middlewares/adminauth.middleware.js';
+import { verifyJWT } from './middlewares/auth.middleware.js';
 
 app.use("/attendance",attendanceRouter)
 app.use("/student",studentRouter)
 app.use("/teacher",teacherRouter)
 app.use("/subject",subjectRouter)
+app.use("/admin",verifyJWT,verifyAdmin,adminRoute)
