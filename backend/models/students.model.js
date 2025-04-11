@@ -19,7 +19,6 @@ const studentSchema = new Schema({
     },
     dob: {
         type: Date,
-        required : true
     },
     class: {
         type: Schema.Types.ObjectId,

@@ -85,11 +85,11 @@ const startAttendanceController = async (req,res) => {
 
     date.setHours(0,0,0,0);
 
-    var attendance = await Attendance.findOne({date,subject});
+    var attendance = await Attendance.findOne({date,subject,class:classobj});
 
     if(!attendance){
       attendance = await Attendance.create({
-        date, subject
+        date, subject, class:classobj
     })
   }
 

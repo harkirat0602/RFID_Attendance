@@ -13,6 +13,11 @@ const attendSchema = new Schema({
     date: {
         type: Date,
         required : true
+    },
+    class: {
+        type: Schema.Types.ObjectId,
+        ref: 'Class',
+        required: true
     }
 })
 

@@ -1,4 +1,5 @@
 import { Student } from '../models/students.model.js'
+import { Class } from "../models/class.models.js"
 
 
 
@@ -48,7 +49,8 @@ const getallstudents = async(req,res)=>{
                 ]
               },
               rollno: 1,
-              class: "$class.class_name"
+              class: "$class.class_name",
+              dob:1
             }
         },
         {
@@ -68,7 +70,19 @@ const getallstudents = async(req,res)=>{
 }
 
 
+const getallclasses = async(req,res)=>{
+  const classnames = await Class.find().distinct('class_name');
+
+  console.log(classnames);
+
+  return res
+    .status(200)
+    .json({success:true, data: classnames})
+}
+
+
 
 export {
-    getallstudents
+    getallstudents,
+    getallclasses
 }
