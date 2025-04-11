@@ -1,0 +1,110 @@
+<div class="d-flex justify-content-between">
+<div>
+    <label for="classSelector" class="dropdown-label">Select Class:</label>
+    <select class="dropdown-select" id="classSelector"[(ngModel)]="selectedClass">
+    <option value="All Classes">All Classes</option>
+    <option *ngFor="let cls of classes" [value]="cls">
+        {{ cls }}
+    </option>
+    </select>
+</div>
+
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary AddButton" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    + Add New
+</button>
+  
+</div>
+
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Student</h1>
+          <button type="button" #closebutton class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div *ngIf="showform" class="modal-body">
+
+          <form [formGroup]="studentForm" (ngSubmit)="RegisterStudent()" >
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" required formControlName="firstname" name="firstName">
+            </div>
+
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" required formControlName="lastname" name="lastName">
+            </div>
+
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" formControlName="dob" name="dob">
+            </div>
+
+            <div class="form-group">
+              <label>Roll No</label>
+              <input type="text" required formControlName="rollno" name="rollNo">
+            </div>
+
+            <div class="form-group">
+              <label>Class</label>
+              <select required formControlName="class_name" name="class">
+                <option *ngFor="let cls of allClasses" [value]="cls">{{ cls }}</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary me-5" [disabled]="studentForm.invalid">Register</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </form>
+        </div>
+        <div *ngIf="showform" class="modal-footer">
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+        <div class="text-center my-3">
+          <div *ngIf="!isSuccess&&!showform&&!isFailed" class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        
+          <div *ngIf="isSuccess" class="checkmark-container">
+            <div class="checkmark">&#10004;</div>
+            <div class="mt-2 text-success">Success!</div>
+          </div>
+        </div>
+        <div *ngIf="isFailed" class="cross-container">
+          <div class="cross ms-3">&#10006;</div>
+          <div class="mt-2 mb-2 ms-3 text-danger">{{errormessage}}</div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+
+
+
+
+
+<div class="table">
+    <table class="the-table">
+      <tr>
+        <th>Roll No</th>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Date Of Birth</th>
+      </tr>
+      <tr *ngFor="let student of students">
+        <td>{{student.rollno}}</td>
+        <td>{{student.name}}</td>
+        <td>{{student.class}}</td>
+        <td>{{ student.dob?.toDateString() || "Unknown" }}</td>
+      </tr>
+    </table>
+    
+  </div>
