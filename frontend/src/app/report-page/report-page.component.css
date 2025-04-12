@@ -1,0 +1,27 @@
+.circle-progress{
+    width:200px;
+    margin-top: 40px;
+    margin-left: 40px;
+    flex-shrink: 0;
+}
+
+.present-day { background-color: #4caf50; } /* Green */
+.absent-day { background-color: #ef5350; }  /* Red */
+.calendar-cell {
+  width: 20px;
+  height: 20px;
+  margin: 5px;
+  border-radius: 3px;
+}
+
+.heat-map{
+    display: grid;
+    grid-template-columns: repeat(7,35px);
+    width: 70vw;
+}
+
+.report-container{
+    display: flex;
+    align-items: center;
+    gap: 200px;
+}
