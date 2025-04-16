@@ -31,6 +31,9 @@ export class ReportPageComponent {
   subjects: Subject[] = [];
   report!: Report;
   startDate = moment('2025-04-01');
+  startDay = this.startDate.day();
+  adjustedDay = (this.startDay + 6) % 7;
+  blankCells = Array(this.adjustedDay).fill(null);
   endDate = moment('2025-04-30');
   heatmapData: AttendanceHeatmap[]= [];
   moment = moment;
@@ -87,6 +90,7 @@ export class ReportPageComponent {
 
 
   getHeatMapData(){
+    this.heatmapData = []
     let current = this.startDate.clone();
 
     while (current.isSameOrBefore(this.endDate)) {
@@ -99,11 +103,38 @@ export class ReportPageComponent {
     
       current.add(1, 'day');
 
+      
     }
+
+    this.startDay = this.startDate.day();
+    this.adjustedDay = (this.startDay + 6) % 7;
+    this.blankCells = Array(this.adjustedDay).fill(null);
+    console.log(this.adjustedDay,this.blankCells);
+    
 
     console.log(this.heatmapData)
   }
 
 
+  previousmonth(){
+    this.startDate = this.startDate.clone().subtract('1','month').startOf('month')
+    this.endDate = this.endDate.clone().subtract('1','month').endOf('month')
+
+    this.getHeatMapData()
+  }
+
+
+  nextMonth(){
+    this.startDate = this.startDate.clone().add('1','month').startOf('month')
+    this.endDate = this.endDate.clone().add('1','month').endOf('month')
+
+    this.getHeatMapData()
+  }
+
+
+  isCurrentMonth(date: moment.Moment):boolean {
+    const now = moment();
+    return date.month() === now.month() && date.year() === now.year();
+  }
 
 }

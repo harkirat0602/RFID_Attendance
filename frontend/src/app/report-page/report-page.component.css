@@ -14,10 +14,10 @@
   border-radius: 3px;
 }
 
-.heat-map{
+.heat-map-grid{
     display: grid;
     grid-template-columns: repeat(7,35px);
-    width: 70vw;
+
 }
 
 .report-container{
@@ -25,3 +25,46 @@
     align-items: center;
     gap: 200px;
 }
+
+.week-label {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #888;
+  }
+  
+
+  .blank-day {
+    background-color: transparent;
+  }
+
+  .weekdays-row {
+    display: grid;
+    grid-template-columns: repeat(7, 35px);
+    margin-bottom: 4px;
+  }
+  
+  .week-label-cell {
+    text-align: center;
+    font-size: 12px;
+    color: gray;
+  }
+
+  .month-label {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    margin-top: 15px;
+    color: #444;
+  }
+  
+
+  .heat-map-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px; /* optional, for breathing room */
+    /* width: 50vw; */
+    flex-direction: column;
+  }

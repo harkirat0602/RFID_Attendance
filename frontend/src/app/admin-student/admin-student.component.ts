@@ -25,27 +25,7 @@ export class AdminStudentComponent {
 
   ngOnInit(){
 
-    this.http.get<any>("http://localhost:3000/admin/getallstudents",{
-      withCredentials: true
-    }).subscribe({
-      next: (response)=>{
-        if(response.success){
-          this.students = response.data;
-          console.log(this.students);
-          this.students.forEach((student)=>{
-            if(student.dob){
-              student.dob = new Date(student.dob);
-            }
-          })
-
-          this.classes = [...new Set(this.students.map(s=>s.class))]
-
-        }
-      },
-      error: (err)=>{
-        console.log(err.error.message);
-      }
-    })
+    this.getallStudents()
 
 
     this.http.get<any>("http://localhost:3000/admin/getallclasses",{
@@ -93,6 +73,7 @@ export class AdminStudentComponent {
         if(response.success){
           this.isSuccess=true;
           console.log("Student Registered ✅");
+          this.getallStudents();
           setTimeout(() => {
             this.myButton.nativeElement.click(); // simulates real button click
             this.showform=true;
@@ -124,6 +105,45 @@ export class AdminStudentComponent {
       return this.students
     }
     return this.students.filter(s => s.class === this.selectedClass)
+  }
+
+
+  deleteStudent(rollno: Number){
+    this.http.get<any>(`http://localhost:3000/student/remove/${rollno}`,{
+      withCredentials: true
+    }).subscribe({
+      next: (response)=>{
+        if(response.success){
+          console.log(`Student having Roll no ${rollno} Deleted Successfully`);
+          this.students = this.students.filter(s => s.rollno !== rollno);
+        }
+      }
+    })
+  }
+
+
+  getallStudents(){
+    this.http.get<any>("http://localhost:3000/admin/getallstudents",{
+      withCredentials: true
+    }).subscribe({
+      next: (response)=>{
+        if(response.success){
+          this.students = response.data;
+          console.log(this.students);
+          this.students.forEach((student)=>{
+            if(student.dob){
+              student.dob = new Date(student.dob);
+            }
+          })
+
+          this.classes = [...new Set(this.students.map(s=>s.class))]
+
+        }
+      },
+      error: (err)=>{
+        console.log(err.error.message);
+      }
+    })
   }
 
 }

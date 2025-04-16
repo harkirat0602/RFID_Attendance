@@ -30,8 +30,8 @@
   </form>
 
 
+  <h2 class="display-5 justify-center" *ngIf="report">Fetched Report Of {{classSelectorForm.value.studentRoll}}</h2>
   <div *ngIf="report" class="report-container">
-    <!-- <h2 class="display-5 justify-center">Fetched Report</h2> -->
     <div class="circle-progress">
       <circle-progress
         [percent]="(+report.presentCount / +report.totalCount) * 100"
@@ -52,15 +52,45 @@
       </circle-progress>
     </div>
 
+
+    <div>
+      <button (click)="previousmonth()" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </div>
+
     <div class="heat-map">
-      <div class="present-day calender-cell"
-        *ngFor="let day of heatmapData" 
-        [ngClass]="{
-          'present-day': day.present,
-          'absent-day': !day.present,
-          'calendar-cell': true
-        }" [title]="moment(day.date).format('MMM D')">
+      <h2 class="month-label">{{startDate.toDate() | date: 'MMMM yyyy'}}</h2>
+      <div class="heat-map-container">
+      <div class="weekdays-row">
+        <div *ngFor="let label of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']"
+             class="week-label-cell">
+          {{ label }}
+        </div>
+      </div>
+      <div class="heat-map-grid" >
+        <div *ngFor="let blank of blankCells" class="calender-cell blank-day"></div>
+
+        <div *ngFor="let day of heatmapData">
+          <!-- <div *ngIf="moment(day.date).day() === 1" class="week-label">
+            Week of {{ moment(day.date).format('MMM D') }}
+          </div> -->
+          <div class="present-day calender-cell"
+            [ngClass]="{
+              'present-day': day.present,
+              'absent-day': !day.present,
+              'calendar-cell': true
+            }" [title]="moment(day.date).format('MMM D')">
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <div>
+    <button (click)="nextMonth()" [disabled]="isCurrentMonth(startDate)" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
 
   </div>
