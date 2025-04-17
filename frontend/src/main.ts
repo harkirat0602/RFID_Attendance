@@ -7,6 +7,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -14,6 +15,7 @@ bootstrapApplication(AppComponent, {
     provideToastr(),
     provideHttpClient(),
     provideRouter(routes),
+    provideCharts(withDefaultRegisterables()),
     AuthService,
     {provide: APP_INITIALIZER,
       useFactory: initializeAppFactory,

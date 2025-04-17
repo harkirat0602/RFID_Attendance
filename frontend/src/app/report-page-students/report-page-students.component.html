@@ -1,0 +1,96 @@
+<form *ngIf="!report" [formGroup]="classSelectorForm" class="d-flex p-2 flex-row justify-content-md-start">
+    <div class="ms-5 mt-5 fs-5">
+      <label>Select Class:</label>
+    <select formControlName="classID">
+      <option *ngFor="let cls of classes" [value]="cls._id">{{ cls.class_name }}</option>
+    </select>
+    </div>
+  
+    <div *ngIf="subjects.length > 0"  class="ms-5 mt-5 fs-5">
+      <label>Select Subject:</label>
+      <select formControlName="subjectID">
+        <option *ngFor="let sub of subjects" [value]="sub._id">{{ sub.name }}</option>
+      </select>
+    </div>
+  
+    <div  *ngIf="classSelectorForm.get('classID')?.value && classSelectorForm.get('subjectID')?.value"
+    class="ms-5 mt-5 fs-5">
+      <label>Roll No:</label>
+      <input type="text" formControlName="studentRoll">
+    </div>
+
+
+    <button  class="ms-5 mt-5 fs-5"
+      *ngIf="classSelectorForm.get('classID')?.value && classSelectorForm.get('subjectID')?.value"
+      (click)="getReport()"
+      type="button"
+    >
+      Show Attendance
+    </button>
+  </form>
+
+
+  <h2 class="display-5 justify-center" *ngIf="report">Fetched Report Of {{classSelectorForm.value.studentRoll}}</h2>
+  <div *ngIf="report" class="report-container">
+    <div class="circle-progress">
+      <circle-progress
+        [percent]="(+report.presentCount / +report.totalCount) * 100"
+        [radius]="60"
+        [outerStrokeWidth]="10"
+        [outerStrokeColor]="'#4EC7B5'"
+        [innerStrokeWidth]="0"
+        [showTitle]="true"
+        [showUnits]="false"
+        [showSubtitle]="true"
+        [showBackground]="true"
+        [animation]="true"
+        [animationDuration]="500"
+        [responsive]="true"
+        [title]="report.presentCount.toString()"
+        [subtitle]="'/ '+report.totalCount.toString()"
+      >
+      </circle-progress>
+    </div>
+
+
+    <div>
+      <button (click)="previousmonth()" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </div>
+
+    <div class="heat-map">
+      <h2 class="month-label">{{startDate.toDate() | date: 'MMMM yyyy'}}</h2>
+      <div class="heat-map-container">
+      <div class="weekdays-row">
+        <div *ngFor="let label of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']"
+             class="week-label-cell">
+          {{ label }}
+        </div>
+      </div>
+      <div class="heat-map-grid" >
+        <div *ngFor="let blank of blankCells" class="calender-cell blank-day"></div>
+
+        <div *ngFor="let day of heatmapData">
+          <!-- <div *ngIf="moment(day.date).day() === 1" class="week-label">
+            Week of {{ moment(day.date).format('MMM D') }}
+          </div> -->
+          <div class="present-day calender-cell"
+            [ngClass]="{
+              'present-day': day.present,
+              'absent-day': !day.present,
+              'calendar-cell': true
+            }" [title]="moment(day.date).format('MMM D')">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button (click)="nextMonth()" [disabled]="isCurrentMonth(startDate)" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  </div>

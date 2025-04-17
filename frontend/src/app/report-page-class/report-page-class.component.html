@@ -1,0 +1,39 @@
+<form *ngIf="!report" [formGroup]="classSelectorForm" class="d-flex p-2 flex-row justify-content-md-start">
+    <div class="ms-5 mt-5 fs-5">
+      <label>Select Class:</label>
+    <select formControlName="classID">
+      <option *ngFor="let cls of classes" [value]="cls._id">{{ cls.class_name }}</option>
+    </select>
+    </div>
+  
+    <div *ngIf="subjects.length > 0"  class="ms-5 mt-5 fs-5">
+      <label>Select Subject:</label>
+      <select formControlName="subjectID">
+        <option *ngFor="let sub of subjects" [value]="sub._id">{{ sub.name }}</option>
+      </select>
+    </div>
+
+
+    <button  class="ms-5 mt-5 fs-5"
+      *ngIf="classSelectorForm.get('classID')?.value && classSelectorForm.get('subjectID')?.value"
+      (click)="getReport()"
+      type="button"
+    >
+      Show Attendance
+    </button>
+  </form>
+
+
+  <div class="full-report" *ngIf="report">
+    <!-- <h1 class="top-heading text-center display-4">Report of {{report.class}}</h1> -->
+
+    <div class="bar-chart">
+        <canvas baseChart 
+            [data]="barChartData"
+            [options]="barChartOptions"
+            [type]="'bar'">
+        </canvas>
+    </div>
+
+
+  </div>
