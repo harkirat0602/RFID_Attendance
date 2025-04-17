@@ -254,7 +254,7 @@ const getStudentAttendance = async(req,res)=>{
   if (attendanceList){
     return res
     .status(200)
-    .json({success:true, data: attendanceList})
+    .json({success:true, data: attendanceList[0]})
   }else{
     return res
     .status(500)

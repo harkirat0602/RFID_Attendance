@@ -70,6 +70,12 @@ mqttClient.on("message",async (topic,message)=>{
 
         const student = await Student.findOne({ rollno : message})
         const attendance = getAttendanceState().attendance;
+
+        if(!attendance){
+            mqttClient.publish("to_arduino_response",'NOT MARKING');
+            return;
+        }
+
         // console.log(attendance);
         // const classobj = attendance.subject.class;
 
@@ -86,6 +92,8 @@ mqttClient.on("message",async (topic,message)=>{
             mqttClient.publish("to_arduino_response",'ALREADY MARKED')
             return
         }
+        
+        
 
         const markedattendance = await Attendance.findByIdAndUpdate(
             attendance._id,
@@ -93,7 +101,6 @@ mqttClient.on("message",async (topic,message)=>{
             {   new: true   }
         );
         
-        console.log(markedattendance._id.toString(),"===",attendance._id.toString())
 
         if(markedattendance._id.toString()==attendance._id.toString()){
             mqttClient.publish("to_arduino_response",'SUCCESS')

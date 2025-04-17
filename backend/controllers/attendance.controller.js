@@ -3,6 +3,7 @@ import { getAttendanceState, startAttendance, stopAttendance } from "../utils/at
 import { Attendance } from "../models/attendance.model.js"
 import { Class } from "../models/class.models.js";
 import mongoose from "mongoose";
+import { Student } from "../models/students.model.js";
 
 
 
@@ -157,6 +158,149 @@ const getAttendance = async(req,res)=>{
     .status(500)
     .json({success:false, message: "Error while fetching students"})
 }
+}
+
+
+const getAttendanceByClass= async (req,res)=>{
+  const {classID,subjectID} = req.params;
+
+  const data = await Student.aggregate([
+    {
+      '$match': {
+        'class': new ObjectId(classID)
+      }
+    }, {
+      '$lookup': {
+        'from': 'attendances', 
+        'let': {
+          'sid': '$_id'
+        }, 
+        'pipeline': [
+          {
+            '$match': {
+              '$expr': {
+                '$and': [
+                  {
+                    '$in': [
+                      '$$sid', '$students'
+                    ]
+                  }, {
+                    '$eq': [
+                      '$subject', new ObjectId(subjectID)
+                    ]
+                  }
+                ]
+              }
+            }
+          }, {
+            '$count': 'attendanceCount'
+          }
+        ], 
+        'as': 'attendanceStats'
+      }
+    }, {
+      '$lookup': {
+        'from': 'attendances', 
+        'pipeline': [
+          {
+            '$match': {
+              '$expr': {
+                '$and': [
+                  {
+                    '$eq': [
+                      '$class', new ObjectId(classID)
+                    ]
+                  }, {
+                    '$eq': [
+                      '$subject', new ObjectId(subjectID)
+                    ]
+                  }
+                ]
+              }
+            }
+          }, {
+            '$count': 'totalLectures'
+          }
+        ], 
+        'as': 'lectureStats'
+      }
+    }, {
+      '$addFields': {
+        'attendanceCount': {
+          '$ifNull': [
+            {
+              '$arrayElemAt': [
+                '$attendanceStats.attendanceCount', 0
+              ]
+            }, 0
+          ]
+        }, 
+        'totalLectureCount': {
+          '$ifNull': [
+            {
+              '$arrayElemAt': [
+                '$lectureStats.totalLectures', 0
+              ]
+            }, 0
+          ]
+        }
+      }
+    }, {
+      '$sort': {
+        'rollno': 1
+      }
+    }, {
+      '$group': {
+        '_id': null, 
+        'students': {
+          '$push': {
+            'rollno': '$rollno', 
+            'name': {
+              '$concat': [
+                '$firstname', ' ', '$lastname'
+              ]
+            }, 
+            'attendanceCount': '$attendanceCount', 
+            'attendancePercent': {
+              '$expr': {
+                '$divide': [
+                  '$attendanceCount', '$totalLectureCount'
+                ]
+              }
+            }
+          }
+        }, 
+        'totalLectures': {
+          '$first': '$totalLectureCount'
+        }
+      }
+    }, {
+      '$addFields': {
+        'topFiveStudents': {
+          '$slice': [
+            {
+              '$sortArray': {
+                'input': '$students', 
+                'sortBy': {
+                  'attendanceCount': -1
+                }
+              }
+            }, 5
+          ]
+        }
+      }
+    }
+  ])
+
+  if (data){
+    return res
+    .status(200)
+    .json({success:true, data: data[0]})
+}else{
+    return res
+    .status(500)
+    .json({success:false, message: "Error while fetching Attendance"})
+}
 
 
 
@@ -167,5 +311,6 @@ const getAttendance = async(req,res)=>{
 export {
     startAttendanceController,
     stopAttendanceController,
-    getAttendance
+    getAttendance,
+    getAttendanceByClass
 }
