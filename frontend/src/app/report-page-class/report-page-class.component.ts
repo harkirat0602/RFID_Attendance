@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { Subject } from '../subject.interface';
 import { Classes } from '../class.interface';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -7,59 +7,83 @@ import { CommonModule } from '@angular/common';
 import { ClassReport } from '../class-report.interface';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { CountUpModule } from 'ngx-countup';
 
 @Component({
   selector: 'app-report-page-class',
-  imports: [ReactiveFormsModule, CommonModule, BaseChartDirective],
+  imports: [ReactiveFormsModule, CommonModule, BaseChartDirective, CountUpModule],
   templateUrl: './report-page-class.component.html',
   styleUrl: './report-page-class.component.css'
 })
 export class ReportPageClassComponent {
 
-  constructor(private http: HttpClient, private fb: FormBuilder) {}
+  @ViewChild('countUpElement', {static: false}) countUpElement!: ElementRef;
+  inView = false;  // Track visibility
+
+
+  constructor(private http: HttpClient, private fb: FormBuilder, private cdRef: ChangeDetectorRef) {}
+
+
+  ngAfterViewInit() {
+    // Intersection Observer to check if element is in the viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.inView = true;  // Element is in view
+        }
+      });
+    });
+    
+    if (this.countUpElement && this.report) {
+      observer.observe(this.countUpElement.nativeElement);
+      console.log("Observing The Element");
+      
+    }  // Observe the countUp element
+  }
 
   classSelectorForm!: FormGroup;
   classes: Classes[] = [];
   subjects: Subject[] = [];
   report!: ClassReport;
+  stats!:Array<any>;
 
   
-barChartData: ChartConfiguration<'bar'>['data'] = {
-  labels: [],
-  datasets: [
-    {
-      label: 'Attendance %',
-      data: [],
-      backgroundColor: '#4CAF50'
-    }
-  ]
-};
+  barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Attendance %',
+        data: [],
+        backgroundColor: '#4CAF50'
+      }
+    ]
+  };
 
-barChartOptions: ChartConfiguration<'bar'>['options'] = {
-  indexAxis: 'y',
-  responsive: true,
-  maintainAspectRatio:false,
-  plugins: {
-    title: {
-      display: true,
-      text: 'Top 5 Students by Attendance',
-      font: {
-        size: 18,
-        weight: 'bold'
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio:false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Top 5 Students by Attendance',
+        font: {
+          size: 18,
+          weight: 'bold'
+        },
+        padding: {
+          top: 50,
+          bottom: 30
+        },
+        align: 'center' // or 'center'
       },
-      padding: {
-        top: 50,
-        bottom: 30
-      },
-      align: 'center' // or 'center'
+      legend: { display: false },
+      tooltip: { enabled: true }
     },
-    legend: { display: false },
-    tooltip: { enabled: true }
-  },
-  scales: {
-    x: { beginAtZero: true, max: 100 }
-  }
-};
+    scales: {
+      x: { beginAtZero: true, max: 100 }
+    }
+  };
 
 
   ngOnInit(): void {
@@ -97,7 +121,10 @@ barChartOptions: ChartConfiguration<'bar'>['options'] = {
           console.log("Reports Fetched");
           this.report = response.data
           console.log(this.report)
-          this.updateBarChart()
+          this.updateBarChart();
+          this.updateStatCard();
+          this.cdRef.detectChanges();          
+          this.ngAfterViewInit();
         }
       },
       error: (err)=>{
@@ -124,6 +151,23 @@ barChartOptions: ChartConfiguration<'bar'>['options'] = {
     };
 
   }
+
+  getColor(percent: number): string {
+    if (percent >= 0.75) return '#4caf50';   // Green
+    if (percent >= 0.50) return '#ff9800';   // Orange
+    return '#f44336';                      // Red
+  }
+  
+
+  updateStatCard(){
+    this.stats = [
+      { value:this.report.totalLectures, label:"Total Lectures Delivered" },
+      { value:this.report.maxStudentCount, label:"Most Students present in a Lecture" },
+      { value:this.report.minStudentCount, label:"Least Students present in a Lecture"},
+      { value:this.report.avgStudentCount, label:"Average Students present in a Lecture"},
+    ]
+  }
+
 
 
 }

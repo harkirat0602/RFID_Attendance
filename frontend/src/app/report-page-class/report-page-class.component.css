@@ -8,3 +8,44 @@
     margin-left: 5vw;
     height: 350px;
 }
+
+.detailed-heading{
+    margin-top: 50px;
+    margin-bottom: 50px;
+    font-size: 3rem;
+}
+
+.the-table{
+    margin-left: 5vw;
+    width: 90vw;
+    border: 1px black solid;
+}
+
+.the-table th{
+    font-size: 1.4rem;
+    border: 1px black solid;
+    padding-left: 15px;
+}
+
+.the-table td{
+    /* border: 1px black solid; */
+    font-size: 1.1rem;
+    padding-top: 15px;
+    padding-left: 10px; 
+    padding-right: 10px;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .stat-display {
+    animation: fadeIn 0.3s ease-out;
+    /* visibility: hidden; */
+  }
+  
+  .in-view {
+    visibility: visible; /* Make it visible when in view */
+  }

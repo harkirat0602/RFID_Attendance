@@ -27,6 +27,7 @@
   <div class="full-report" *ngIf="report">
     <!-- <h1 class="top-heading text-center display-4">Report of {{report.class}}</h1> -->
 
+    <!-- This is the bar chart of the Top5 students -->
     <div class="bar-chart">
         <canvas baseChart 
             [data]="barChartData"
@@ -34,6 +35,62 @@
             [type]="'bar'">
         </canvas>
     </div>
+
+
+    <div style="height:50vh;"></div>
+    <!-- This is the Stats Data -->
+    <h2 class="text-center detailed-heading">Stats Overview</h2>
+    <div class="row text-center">
+      <div class="col-3 mb-4" *ngFor="let stat of stats">
+        <div #countUpElement [ngClass]="{ 'in-view': inView}">
+          <h2 *ngIf="inView" class="fw-bold display-5 stat-display" [countUp]="stat.value" [options]="{duration: 2}">
+            <!-- <count-up [countUp]="{ endVal: stat?.value || 0, duration: 2}"></count-up> -->
+          </h2>
+          <p class="text-muted">{{stat.label}}</p>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+    <div style="height:50vh;"></div>
+    <!-- This is the Table of All students -->
+    <div>
+      <h2 class="text-center detailed-heading">Detailed Class Report</h2>
+
+      <table class="the-table">
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th style="width:15%;">Lecture Attended</th>
+          <th>Attendance Status</th>
+        </tr>
+        <tr *ngFor="let student of report.students">
+          <td>{{student.rollno}}</td>
+          <td>{{student.name}}</td>
+          <td class="text-center">{{student.attendanceCount}}</td>
+          <td>
+            <div style="position: relative; width: 100%; height: 20px; background-color: #e0e0e0; border-radius: 10px;">
+              <div
+                [ngStyle]="{
+                  width: student.attendancePercent*100 + '%',
+                  backgroundColor: getColor(student.attendancePercent),
+                  height: '100%',
+                  borderRadius: '10px'
+                }">
+              </div>
+              <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-size: 12px; color: #000;">
+                {{ student.attendancePercent*100 | number:'1.0-1'}}%
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="height:50vh;"></div>
 
 
   </div>
