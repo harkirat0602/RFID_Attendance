@@ -200,6 +200,13 @@ const getAttendanceByClass= async (req,res)=>{
       }
     }, {
       '$lookup': {
+        'from': 'classes', 
+        'localField': 'class', 
+        'foreignField': '_id', 
+        'as': 'class'
+      }
+    }, {
+      '$lookup': {
         'from': 'attendances', 
         'pipeline': [
           {
@@ -219,7 +226,29 @@ const getAttendanceByClass= async (req,res)=>{
               }
             }
           }, {
-            '$count': 'totalLectures'
+            '$project': {
+              'studentCount': {
+                '$max': {
+                  '$size': '$students'
+                }
+              }
+            }
+          }, {
+            '$group': {
+              '_id': null, 
+              'totalLectures': {
+                '$count': {}
+              }, 
+              'maxStudentCount': {
+                '$max': '$studentCount'
+              }, 
+              'minStudentCount': {
+                '$min': '$studentCount'
+              }, 
+              'avgStudentCount': {
+                '$avg': '$studentCount'
+              }
+            }
           }
         ], 
         'as': 'lectureStats'
@@ -240,6 +269,36 @@ const getAttendanceByClass= async (req,res)=>{
             {
               '$arrayElemAt': [
                 '$lectureStats.totalLectures', 0
+              ]
+            }, 0
+          ]
+        }, 
+        'class': {
+          '$first': '$class'
+        }, 
+        'minStudentCount': {
+          '$ifNull': [
+            {
+              '$arrayElemAt': [
+                '$lectureStats.minStudentCount', 0
+              ]
+            }, 0
+          ]
+        }, 
+        'maxStudentCount': {
+          '$ifNull': [
+            {
+              '$arrayElemAt': [
+                '$lectureStats.maxStudentCount', 0
+              ]
+            }, 0
+          ]
+        }, 
+        'avgStudentCount': {
+          '$ifNull': [
+            {
+              '$arrayElemAt': [
+                '$lectureStats.avgStudentCount', 0
               ]
             }, 0
           ]
@@ -270,8 +329,20 @@ const getAttendanceByClass= async (req,res)=>{
             }
           }
         }, 
+        'class': {
+          '$first': '$class.class_name'
+        }, 
         'totalLectures': {
           '$first': '$totalLectureCount'
+        }, 
+        'minStudentCount': {
+          '$first': '$minStudentCount'
+        }, 
+        'maxStudentCount': {
+          '$first': '$maxStudentCount'
+        }, 
+        'avgStudentCount': {
+          '$first': '$avgStudentCount'
         }
       }
     }, {
