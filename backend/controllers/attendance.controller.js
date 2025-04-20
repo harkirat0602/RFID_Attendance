@@ -379,9 +379,68 @@ const getAttendanceByClass= async (req,res)=>{
 }
 
 
+const getDayAttendance= async(req,res)=>{
+
+
+  const { classID,subjectID,date } = req.body;
+
+  const attendance = await Attendance.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          class: new ObjectId(classID),
+          subject: new ObjectId(subjectID),
+          date: new Date(date)
+        }
+    },
+    {
+      $lookup:
+        /**
+         * from: The target collection.
+         * localField: The local join field.
+         * foreignField: The target join field.
+         * as: The name for the results.
+         * pipeline: Optional pipeline to run on the foreign collection.
+         * let: Optional variables to use in the pipeline field stages.
+         */
+        {
+          from: "students",
+          localField: "students",
+          foreignField: "_id",
+          as: "students"
+        }
+    }
+  ])
+
+  console.log(attendance)
+
+
+  if(!attendance){
+    return res
+    .status(500)
+    .json({success:false, message: "Error while fetching students"})
+  }
+
+
+  if (attendance.length){
+    return res
+    .status(200)
+    .json({success:true, data: attendance[0].students})
+  }else{
+    return res
+    .status(420)
+    .json({success:false, message: "No Attendance was Marked on the given Date"})
+  }
+
+}
+
 export {
     startAttendanceController,
     stopAttendanceController,
     getAttendance,
-    getAttendanceByClass
+    getAttendanceByClass,
+    getDayAttendance
 }
