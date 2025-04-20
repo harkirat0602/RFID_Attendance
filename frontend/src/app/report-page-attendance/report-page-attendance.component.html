@@ -1,1 +1,96 @@
-<p>report-page-attendance works!</p>
+<form *ngIf="!students" [formGroup]="classSelectorForm" class="d-flex p-2 flex-row justify-content-md-start">
+    <div class="ms-5 mt-5 fs-5">
+      <label>Select Class:</label>
+    <select formControlName="classID">
+      <option *ngFor="let cls of classes" [value]="cls._id">{{ cls.class_name }}</option>
+    </select>
+    </div>
+  
+    <div *ngIf="subjects.length > 0"  class="ms-5 mt-5 fs-5">
+      <label>Select Subject:</label>
+      <select formControlName="subjectID">
+        <option *ngFor="let sub of subjects" [value]="sub._id">{{ sub.name }}</option>
+      </select>
+    </div>
+  
+    <div  *ngIf="classSelectorForm.get('classID')?.value && classSelectorForm.get('subjectID')?.value"
+    class="ms-5 mt-5 fs-5">
+        <mat-form-field appearance="fill">
+        <mat-label>Select a date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+
+    <button  class="ms-5 mt-5 fs-5"
+      *ngIf="classSelectorForm.get('classID')?.value && classSelectorForm.get('subjectID')?.value"
+      (click)="getReport()"
+      type="button"
+    >
+      Show Attendance
+    </button>
+  </form>
+
+
+
+  <div class="the-report" *ngIf="students">
+
+    <div class="fancy-date-picker">
+      
+    
+      <form [formGroup]="classSelectorForm">
+        <button mat-icon-button (click)="changeDate(-1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="date-content">
+          <button mat-icon-button (click)="picker.open()">
+            <mat-icon>calendar_today</mat-icon>
+          </button>
+        
+          <!-- Display selected date below the icon -->
+          <div class="selected-date">
+            {{ classSelectorForm.value.date | date: 'fullDate' }}
+          </div>
+        
+          <!-- Hidden input to trigger the picker -->
+          <input matInput [matDatepicker]="picker" formControlName="date" hidden>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+
+      <button mat-icon-button (click)="changeDate(1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+    </form>
+    
+     
+    </div>
+
+    <table class="the-table">
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Attendance Status</th>
+        </tr>
+        <tr *ngFor="let student of students;">
+          <td>{{student.rollno}}</td>
+          <td>{{student.name}}</td>
+          <td>{{student.class}}</td>
+          <td><span *ngIf="student.isPresent; else absent"><button class="btn btn-outline-success">Present</button></span>
+            <ng-template #absent><button class="btn btn-outline-danger">Absent</button></ng-template></td>
+        </tr>
+      </table>
+
+      <div class="backdrop" *ngIf="showOverlay">
+
+        <div class="overlay">
+          <button (click)="showOverlay=false" class="btn btn-primary">Close</button>
+          <h2 class="text-center">{{OverlayMessage}}</h2>
+        </div>
+      </div>
+
+  </div>

@@ -37,7 +37,7 @@
         [percent]="(+report.presentCount / +report.totalCount) * 100"
         [radius]="60"
         [outerStrokeWidth]="10"
-        [outerStrokeColor]="'#4EC7B5'"
+        [outerStrokeColor]="getColor(+report.presentCount / +report.totalCount)"
         [innerStrokeWidth]="0"
         [showTitle]="true"
         [showUnits]="false"

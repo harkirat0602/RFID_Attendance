@@ -137,4 +137,13 @@ export class StudentsReportComponent {
     return date.month() === now.month() && date.year() === now.year();
   }
 
+
+  getColor(percent: number): string {
+    if (percent >= 0.75) return '#4caf50';   // Green
+    if (percent >= 0.50) return '#ff9800';   // Orange
+    return '#f44336';                      // Red
+  }
+  
+
+
 }

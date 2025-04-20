@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { Login } from './login.interface';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ export class AuthService {
     dob: undefined
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   // Call this on app start or route navigation
   fetchLoginInfo(): Observable<void> {
@@ -30,6 +31,9 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('Login info fetch failed:', error);
+        if(this.router.url!="/"){
+          this.router.navigate(['/login']);
+        }
         return of(); // Just return an empty observable so it doesn’t crash the app
       }),
       map(() => void 0)
