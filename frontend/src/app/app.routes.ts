@@ -12,6 +12,7 @@ import { ReportPageComponent } from './report-page/report-page.component';
 import { ReportPageAttendanceComponent } from './report-page-attendance/report-page-attendance.component';
 import { EmpytWelcomeComponent } from './empyt-welcome.component';
 import { ReportPageClassComponent } from './report-page-class/report-page-class.component';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
 
 export const routes: Routes = [
     {
@@ -50,5 +51,10 @@ export const routes: Routes = [
             { path:'attendance', component: AdminAttendanceComponent },
             { path:'subjects', component: AdminSubjectsComponent}
         ]
+    },
+    {
+        path:"edit-profile",
+        component: EditProfileComponent,
+        title: "Edit Profile"
     }
 ];
