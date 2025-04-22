@@ -233,6 +233,69 @@ const getlogininfo = async (req,res)=>{
 }
 
 
+const updateteacher = async(req,res)=>{
+
+  const {name, username, dob} = req.body;
+
+  if(
+    [username, name, dob].some((field)=> !field || field?.trim()==="")
+ ){
+    return res
+    .status(400)
+    .json({success:false, message: "All fields are required"})
+ }
+
+
+  const teacher = await Teacher.findByIdAndUpdate(
+    req.teacher._id,
+    {
+      $set: {
+        name, username, dob: new Date(dob)
+      }
+    },
+    {new:true}
+  ).select("-password -refreshToken")
+
+
+  return res
+        .status(200)
+        .json({success:true, data:teacher})
+
+}
+
+
+
+const changePassword= async(req,res)=>{
+
+  const {oldPassword, newPassword} = req.body;
+
+  if(
+    [oldPassword,newPassword].some((field)=> !field || field?.trim()==="")
+  ){
+    return res
+    .status(400)
+    .json({success:false, message: "All fields are required"})
+  }
+
+
+  const teacher = await Teacher.findById(req.teacher._id)
+    const isPasswordCorrect = await teacher.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect){
+      return res
+      .status(420)
+      .json({success:false,message:"Old Password Mismatch"})
+    }
+
+    teacher.password = newPassword
+    await teacher.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json({success:true,message:"Password changed successfully"})
+
+
+}
 
 
 export {
@@ -240,5 +303,7 @@ export {
     loginteacher,
     logoutteacher,
     getlogininfo,
-    getClassesandSubjects
+    getClassesandSubjects,
+    updateteacher,
+    changePassword
 }
