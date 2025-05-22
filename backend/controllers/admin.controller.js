@@ -70,7 +70,7 @@ const getallstudents = async(req,res)=>{
 }
 
 
-const getallclasses = async(req,res)=>{
+const getallclassesname = async(req,res)=>{
   const classnames = await Class.find().distinct('class_name');
 
   console.log(classnames);
@@ -84,5 +84,5 @@ const getallclasses = async(req,res)=>{
 
 export {
     getallstudents,
-    getallclasses
+    getallclassesname
 }
