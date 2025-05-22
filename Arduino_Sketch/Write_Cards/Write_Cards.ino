@@ -29,23 +29,50 @@
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 
+MFRC522::MIFARE_Key key;
+MFRC522::MIFARE_Key oldkey;
+
+byte buffer[34];
+byte len;
+
+
 void setup() {
   Serial.begin(9600);        // Initialize serial communications with the PC
   SPI.begin();               // Init SPI bus
   mfrc522.PCD_Init();        // Init MFRC522 card
   Serial.println(F("Write personal data on a MIFARE PICC "));
-}
+  SPI.setFrequency(1000000);
 
-void loop() {
-
-  // Prepare key - all keys are set to FFFFFFFFFFFFh at chip delivery from the factory.
-  MFRC522::MIFARE_Key key;
   key.keyByte[0] = 0xA6;
   key.keyByte[1] = 0xB5;
   key.keyByte[2] = 0xC4;
   key.keyByte[3] = 0xD3;
   key.keyByte[4] = 0xE2;
   key.keyByte[5] = 0xF1;
+
+
+  oldkey.keyByte[0] = 0xFF;
+  oldkey.keyByte[1] = 0xFF;
+  oldkey.keyByte[2] = 0xFF;
+  oldkey.keyByte[3] = 0xFF;
+  oldkey.keyByte[4] = 0xFF;
+  oldkey.keyByte[5] = 0xFF;
+
+}
+
+void loop() {
+
+
+  if(buffer[0]==0){
+    Serial.println(F("Type Roll no, ending with #"));
+    delay(2000);
+    while(!Serial.available());
+    len = Serial.readBytesUntil('#', (char *) buffer, 30) ; // read family name from serial
+    for (byte i = len; i < 30; i++) buffer[i] = ' '; 
+    Serial.println(len);
+  }
+
+
 
   // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
@@ -66,25 +93,43 @@ void loop() {
   MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
   Serial.println(mfrc522.PICC_GetTypeName(piccType));
 
-  byte buffer[34];
+
   byte block;
   MFRC522::StatusCode status;
-  byte len;
+  
 
-  Serial.setTimeout(20000L) ;     // wait until 20 seconds for input from serial
+
   // Ask personal data: Family name
-  Serial.println(F("Type Roll no, ending with #"));
-  len = Serial.readBytesUntil('#', (char *) buffer, 30) ; // read family name from serial
-  for (byte i = len; i < 30; i++) buffer[i] = ' '; 
+
+
+  delay(100);
+  SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+  mfrc522.PCD_StopCrypto1();  // End previous session (super important!)
+  delay(100);
+  mfrc522.PCD_Init();
+
+
+  if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
+  Serial.println("Card removed or not detected anymore");
+  return;
+  }
 
 
   block = 1;
   //Serial.println(F("Authenticating using key A..."));
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &key, &(mfrc522.uid));
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("PCD_Authenticate() failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return;
+    // Serial.print(F("PCD_Authenticate() failed: "));
+    // Serial.println(mfrc522.GetStatusCodeName(status));
+    // return;
+    status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &oldkey, &(mfrc522.uid));
+    if (status != MFRC522::STATUS_OK) {
+      Serial.print(F("PCD_Authenticate() failed: "));
+      Serial.println(mfrc522.GetStatusCodeName(status));
+      delay(1000);
+      return;
+    }
+    else Serial.println(F("PCD_Authenticate() success: "));
   }
   else Serial.println(F("PCD_Authenticate() success: "));
 
@@ -105,13 +150,33 @@ void loop() {
                               0xA6, 0xB5, 0xC4, 0xD3, 0xE2, 0xF1};
 
 
-  
+  // status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 3, &oldkey, &(mfrc522.uid));
+  // if (status != MFRC522::STATUS_OK) {
+  //   // Serial.print(F("PCD_Authenticate() failed: "));
+  //   // Serial.println(mfrc522.GetStatusCodeName(status));
+  //   // return;
+  //   status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 3, &key, &(mfrc522.uid));
+  //   if (status != MFRC522::STATUS_OK) {
+  //     Serial.print(F("PCD_Authenticate() failed: "));
+  //     Serial.println(mfrc522.GetStatusCodeName(status));
+  //     mfrc522.PCD_StopCrypto1();
+  //     mfrc522.PCD_Reset();
+  //     delay(50);
+  //     return;
+  //   }
+  //   else Serial.println(F("PCD_Authenticate() success: "));
+  // }
+  // else Serial.println(F("PCD_Authenticate() success: "));
+
+
   status = (MFRC522::StatusCode)mfrc522.MIFARE_Write(trailerBlock, newTrailerBlock, 16);
     if (status != MFRC522::STATUS_OK) {
        Serial.println("Failed to write new key!");
     } else {
         Serial.println("Authentication key updated successfully!");
     }
+
+  buffer[0]= 0;
 
 
   Serial.println(" ");
