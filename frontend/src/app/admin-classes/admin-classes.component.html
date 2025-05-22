@@ -1,1 +1,40 @@
-<p>admin-classes works!</p>
+<!-- <div style="align-items: end;">
+<button type="button" class="btn btn-primary AddButton" data-bs-toggle="modal">
+  + Add New
+</button>
+
+</div> -->
+
+
+
+<div class="row">
+    <div class="col-md-4" *ngFor="let classObj of allClasses">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title fs-1">{{ classObj.class_name }}</h5>
+          <p class="card- fs-5">
+            <strong>Students:</strong> {{ classObj.studentCount }}
+          </p>
+          <button class="btn btn-sm btn-outline-primary" (click)="toggleExpand(classObj)">
+            {{ expandedClass === classObj ? 'Hide Subjects' : 'Show Subjects' }}
+          </button>
+          <div *ngIf="expandedClass === classObj" class="mt-3">
+            <div class="mt-3">
+                <h6 class="text-primary mb-2">Subjects</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <span 
+                    *ngFor="let subject of classObj.subjects"
+                    class="badge bg-info text-dark shadow-sm"
+                    style="font-size: 0.9rem; padding: 0.5em 0.75em; border-radius: 0.75rem;"
+                  >
+                    {{ subject.name }}
+                  </span>
+                </div>
+              </div>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

@@ -68,3 +68,8 @@
     /* width: 50vw; */
     flex-direction: column;
   }
+
+  .heading{
+    margin: 20px;
+    margin-left: 40px;
+  }

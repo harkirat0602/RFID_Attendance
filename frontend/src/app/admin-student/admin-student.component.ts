@@ -28,7 +28,7 @@ export class AdminStudentComponent {
     this.getallStudents()
 
 
-    this.http.get<any>("http://localhost:3000/admin/getallclasses",{
+    this.http.get<any>("http://localhost:3000/admin/getallclassesname",{
       withCredentials: true
     }).subscribe({
       next: (response)=>{
